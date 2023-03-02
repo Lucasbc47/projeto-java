@@ -3,14 +3,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.ResultSet;
+
 import javax.swing.JOptionPane;
 
 public class Banco {
-
     private String url = "jdbc:sqlite:banco.db";
     private Connection conn;
     
     public void inicializarConexao(){
+        /*
+        Inicializa conexão com o banco 
+        */
         try{
         conn = DriverManager.getConnection(url);
         Statement stmt = conn.createStatement();
@@ -38,7 +42,9 @@ public class Banco {
         "cargo TEXT, " +
         "data_inicio TEXT, " +
         "data_pagamento TEXT, " +
-        "pais TEXT)";
+        "pais TEXT, " +
+        "pago TEXT, " +
+        "cargo_confiança TEXT)";
 
         stmt.executeUpdate(sql);
         }
@@ -47,18 +53,40 @@ public class Banco {
         }
     }
 
-    public void fecharConexao(){
-    try{
-        conn.close();    
-    }
-    catch (Exception e){
-        JOptionPane.showMessageDialog(null, e.getMessage());
-    }
-}
-
-        public void adicionarDados(String nome, String genero, String rg, String cpf, String nascimento, String telefone, String email, String convenio_1, String convenio_2, String endereco_logradouro, String endereco_n, String endereco_complemento, String endereco_estado, String endereco_bairro, String endereco_cep, String endereco_uf, String agencia, String conta, String salario, String cargo, String data_inicio, String data_pagamento, String pais) {
+    public ResultSet getDados(String name) {
+        /*
+        Retorna todos dados do banco baseados no nome inserido. 
+        */
         try {
-            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO dados (nome, genero, rg, cpf, nascimento, telefone, email, convenio_1, convenio_2, endereco_logradouro, endereco_n, endereco_complemento, endereco_estado, endereco_bairro, endereco_cep, endereco_uf, agencia, conta, salario, cargo, data_inicio, data_pagamento, pais) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM dados WHERE = ?");
+            stmt.setString(1, name);
+            ResultSet rs = stmt.executeQuery();
+            return rs;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e, name, 0);
+            return null; 
+        }
+    }
+    
+
+    public void fecharConexao(){
+        /*
+        Fecha conexão do Banco de Dados
+        */
+        try{
+            conn.close();    
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }   
+    }
+
+    public void adicionarDados(String nome, String genero, String rg, String cpf, String nascimento, String telefone, String email, String convenio_1, String convenio_2, String endereco_logradouro, String endereco_n, String endereco_complemento, String endereco_estado, String endereco_bairro, String endereco_cep, String endereco_uf, String agencia, String conta, String salario, String cargo, String data_inicio, String data_pagamento, String pais, String confianca, String pagamento) {
+        /*
+        Adiciona os valores ao banco de dados.
+        */
+            try {
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO dados (nome, genero, rg, cpf, nascimento, telefone, email, convenio_1, convenio_2, endereco_logradouro, endereco_n, endereco_complemento, endereco_estado, endereco_bairro, endereco_cep, endereco_uf, agencia, conta, salario, cargo, data_inicio, data_pagamento, pais, cargo_confiança) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             pstmt.setString(1, nome);
             pstmt.setString(2, genero);
             pstmt.setString(3, rg);
@@ -82,17 +110,12 @@ public class Banco {
             pstmt.setString(21, data_inicio);
             pstmt.setString(22, data_pagamento);
             pstmt.setString(23, pais);
+            pstmt.setString(24, confianca);
+            pstmt.setString(25, pagamento);
             pstmt.executeUpdate();
             JOptionPane.showMessageDialog(null, "Dados adicionados com sucesso!");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
-    }
-
-    
-    
-    
+    }   
 }
-    
-
-
